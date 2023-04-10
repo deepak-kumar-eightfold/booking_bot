@@ -65,3 +65,64 @@ class Booking(webdriver.Chrome):
             f'span[data-date="{check_out_date}"]'
         )
         check_out_date_element.click()
+
+    def _accomodation_counter(self, counter_element, count):
+        decrement_button = counter_element.find_element(
+            By.XPATH,
+            "./button[1]"
+        )
+        increment_button = counter_element.find_element(
+            By.XPATH,
+            "./button[2]"
+        )
+        show_travellers_span = counter_element.find_element(
+            By.XPATH,
+            "./span"
+        )
+
+        while int(show_travellers_span.text) != count:
+            if int(show_travellers_span.text) > count:
+                decrement_button.click()
+            else:
+                increment_button.click()
+
+    def select_accomodations(
+        self,
+        number_of_adult_travellers=2,
+        number_of_rooms=1
+    ):
+        # Must have at least one traveller and one room
+        if number_of_rooms == 0:
+            number_of_rooms = 1
+
+        if number_of_adult_travellers == 0:
+            number_of_adult_travellers = 1
+
+        travel_accomodation_element = self.find_element(
+            By.CSS_SELECTOR,
+            'button[data-testid="occupancy-config"]'
+        )
+        travel_accomodation_element.click()
+
+        adult_selection_element = self.find_element(
+            By.XPATH,
+            '//div[contains(@class, "b2b5147b20")]//input[@id="group_adults"]/following-sibling::div[contains(@class, "e98c626f34")]'
+        )
+        self._accomodation_counter(
+            adult_selection_element, number_of_adult_travellers
+        )
+
+        room_selection_element = self.find_element(
+            By.XPATH,
+            '//div[contains(@class, "b2b5147b20")]//input[@id="no_rooms"]/following-sibling::div[contains(@class, "e98c626f34")]'
+        )
+        self._accomodation_counter(
+            room_selection_element, number_of_rooms
+        )
+
+    def click_search(self):
+        search_button = self.find_element(
+            By.CSS_SELECTOR,
+            'button[type="submit"]'
+        )
+        search_button.click()
