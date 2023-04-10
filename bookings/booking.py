@@ -52,3 +52,16 @@ class Booking(webdriver.Chrome):
                 print(f"{visiting_city} not found on booking.com")
             finally:
                 selection_list_item.click()
+
+    def select_dates(self, check_in_date, check_out_date):
+        check_in_date_element = self.find_element(
+            By.CSS_SELECTOR,
+            f'span[data-date="{check_in_date}"]'
+        )
+        check_in_date_element.click()
+
+        check_out_date_element = self.find_element(
+            By.CSS_SELECTOR,
+            f'span[data-date="{check_out_date}"]'
+        )
+        check_out_date_element.click()
