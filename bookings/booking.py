@@ -19,3 +19,36 @@ class Booking(webdriver.Chrome):
             'button[aria-label="Dismiss sign in information."]'
         )
         sign_in_prompt.click()
+
+    # def change_currency(self, currency=None):
+    #     currency_converter_element = self.find_element(
+    #         By.CSS_SELECTOR,
+    #         'button[data-testid="header-currency-picker-trigger"]'
+    #     )
+    #     currency_converter_element.click()
+
+    def search_city(self, visiting_city):
+        search_input_element = self.find_element(
+            By.ID,
+            ":Ra9:"
+        )
+        search_input_element.clear()
+        search_input_element.send_keys(visiting_city)
+        selection_list_item = self.find_element(
+            By.CLASS_NAME,
+            "a40619bfbe"
+        )
+        if selection_list_item.text == visiting_city:
+            selection_list_item.click()
+        else:
+            try:
+                WebDriverWait(self, 10).until(
+                    EC.text_to_be_present_in_element(
+                        (By.CLASS_NAME, "a40619bfbe"),
+                        visiting_city
+                    )
+                )
+            except:
+                print(f"{visiting_city} not found on booking.com")
+            finally:
+                selection_list_item.click()
