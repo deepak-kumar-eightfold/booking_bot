@@ -126,3 +126,18 @@ class Booking(webdriver.Chrome):
             'button[type="submit"]'
         )
         search_button.click()
+
+    def sort_results_by(self, sort_by):
+        sort_selection_element = self.find_element(
+            By.CSS_SELECTOR,
+            'button[data-testid="sorters-dropdown-trigger"]'
+        )
+        sort_selection_element.click()
+
+        sort_choice_button = WebDriverWait(self, 10).until(
+            EC.presence_of_element_located((
+                By.CSS_SELECTOR,
+                f"button[data-id='{sort_by}']"
+            ))
+        )
+        sort_choice_button.click()
