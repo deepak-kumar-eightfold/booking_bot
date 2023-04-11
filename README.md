@@ -22,8 +22,11 @@ This bot uses Python and Selenium to scrape Booking.com and extract hotel deals 
 3. Install selenium
 
    > For windows : `pip install selenium`
+
    > For Mac/linux: `pip3 install selenium`
 
 4. Run the program
+
    > For windows : `python run.py`
+
    > For Mac/linux: `python3 run.py`
