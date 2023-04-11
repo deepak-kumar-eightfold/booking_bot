@@ -8,24 +8,22 @@ import bookings.constant as const
 
 class Booking(webdriver.Chrome):
     def __init__(self) -> None:
-        super(Booking, self).__init__()
+        super().__init__()
         self.implicitly_wait(15)
         self.maximize_window()
+        self._landing_page()
 
-    def landing_page(self):
+    def __exit__(self, exc_type, exc, traceback):
+        self.quit()
+        return super().__exit__(exc_type, exc, traceback)
+
+    def _landing_page(self):
         self.get(const.BASE_URL)
         sign_in_prompt = self.find_element(
             By.CSS_SELECTOR,
             'button[aria-label="Dismiss sign in information."]'
         )
         sign_in_prompt.click()
-
-    # def change_currency(self, currency=None):
-    #     currency_converter_element = self.find_element(
-    #         By.CSS_SELECTOR,
-    #         'button[data-testid="header-currency-picker-trigger"]'
-    #     )
-    #     currency_converter_element.click()
 
     def search_city(self, visiting_city):
         search_input_element = self.find_element(
@@ -86,6 +84,13 @@ class Booking(webdriver.Chrome):
             else:
                 increment_button.click()
 
+    def _click_search(self):
+        search_button = self.find_element(
+            By.CSS_SELECTOR,
+            'button[type="submit"]'
+        )
+        search_button.click()
+
     def select_accomodations(
         self,
         number_of_adult_travellers=2,
@@ -120,12 +125,7 @@ class Booking(webdriver.Chrome):
             room_selection_element, number_of_rooms
         )
 
-    def click_search(self):
-        search_button = self.find_element(
-            By.CSS_SELECTOR,
-            'button[type="submit"]'
-        )
-        search_button.click()
+        self._click_search()
 
     def sort_results_by(self, sort_by):
         sort_selection_element = self.find_element(
@@ -141,3 +141,13 @@ class Booking(webdriver.Chrome):
             ))
         )
         sort_choice_button.click()
+
+    def filter_by_hotel_star(self, star_values):
+        for star_value in star_values:
+            if star_value == 1:
+                continue
+            star_filtration_checkbox = self.find_element(
+                By.XPATH,
+                f"//input[contains(@aria-label, '{star_value} stars')]"
+            )
+            star_filtration_checkbox.click()
