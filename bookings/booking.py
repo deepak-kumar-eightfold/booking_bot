@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from prettytable import PrettyTable
 
 import bookings.constant as const
 
@@ -151,3 +152,38 @@ class Booking(webdriver.Chrome):
                 f"//input[contains(@aria-label, '{star_value} stars')]"
             )
             star_filtration_checkbox.click()
+
+    def get_bookings(self):
+        self.refresh()
+        hotel_boxes = self.find_elements(
+            By.CSS_SELECTOR,
+            'div[data-testid="property-card"]'
+        )
+
+        top_hotel_collection = []
+
+        for hotel_box in hotel_boxes:
+            hotel_name = hotel_box.find_element(
+                By.CSS_SELECTOR,
+                'div[data-testid="title"]'
+            ).get_attribute('innerHTML').strip()
+
+            hotel_price = hotel_box.find_element(
+                By.CSS_SELECTOR,
+                'span[data-testid="price-and-discounted-price"]'
+            ).get_attribute('innerHTML').strip()
+            hotel_price = hotel_price.replace("&nbsp;", " ")
+
+            hotel_rating = hotel_box.find_element(
+                By.XPATH,
+                '//div[contains(@aria-label, "Scored")]'
+            ).get_attribute('innerHTML').strip()
+
+            top_hotel_collection.append(
+                [hotel_name, hotel_price, hotel_rating]
+            )
+        table = PrettyTable(
+            field_names=["Hotel Name", "Hotel Price", "Hotel Score"]
+        )
+        table.add_rows(top_hotel_collection)
+        print(table)
