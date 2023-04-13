@@ -1,15 +1,16 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from prettytable import PrettyTable
 
 import bookings.constant as const
+from .element_finder_and_processor import ElementFinderAndProcessor
+from .locators import ElementLocators as EL
 
 
 class Booking(webdriver.Chrome):
     def __init__(self) -> None:
         super().__init__()
+        self.element_finder = ElementFinderAndProcessor(self)
         self.implicitly_wait(15)
         self.maximize_window()
         self._landing_page()
@@ -20,170 +21,236 @@ class Booking(webdriver.Chrome):
 
     def _landing_page(self):
         self.get(const.BASE_URL)
-        sign_in_prompt = self.find_element(
-            By.CSS_SELECTOR,
-            'button[aria-label="Dismiss sign in information."]'
+        self.element_finder.search_and_click_element(
+            EL.close_sign_in_prompt_button
         )
-        sign_in_prompt.click()
 
-    def search_city(self, visiting_city):
-        search_input_element = self.find_element(
-            By.ID,
-            ":Ra9:"
+    def _search_city(self, visiting_city):
+        search_input_element = self.element_finder.search_element(
+            EL.city_search_input_field
         )
         search_input_element.clear()
         search_input_element.send_keys(visiting_city)
-        selection_list_item = self.find_element(
-            By.CLASS_NAME,
-            "a40619bfbe"
+        selection_list_item = self.element_finder.search_element(
+            EL.city_selection_list_item
         )
         if selection_list_item.text == visiting_city:
-            selection_list_item.click()
+            self.element_finder.click_element(
+                selection_list_item
+            )
         else:
             try:
                 WebDriverWait(self, 10).until(
                     EC.text_to_be_present_in_element(
-                        (By.CLASS_NAME, "a40619bfbe"),
+                        EL.city_selection_list_item,
                         visiting_city
                     )
                 )
             except:
                 print(f"{visiting_city} not found on booking.com")
             finally:
-                selection_list_item.click()
+                self.element_finder.click_element(
+                    selection_list_item
+                )
 
-    def select_dates(self, check_in_date, check_out_date):
-        check_in_date_element = self.find_element(
-            By.CSS_SELECTOR,
-            f'span[data-date="{check_in_date}"]'
-        )
-        check_in_date_element.click()
+    def _select_dates(self, check_in_date, check_out_date):
 
-        check_out_date_element = self.find_element(
-            By.CSS_SELECTOR,
-            f'span[data-date="{check_out_date}"]'
+        self.element_finder.search_and_click_element(
+            (
+                EL.date_picker[0],
+                EL.date_picker[1].replace(
+                    EL.replacement_text,
+                    check_in_date
+                )
+            )
         )
-        check_out_date_element.click()
-
-    def _accomodation_counter(self, counter_element, count):
-        decrement_button = counter_element.find_element(
-            By.XPATH,
-            "./button[1]"
-        )
-        increment_button = counter_element.find_element(
-            By.XPATH,
-            "./button[2]"
-        )
-        show_travellers_span = counter_element.find_element(
-            By.XPATH,
-            "./span"
+        self.element_finder.search_and_click_element(
+            (
+                EL.date_picker[0],
+                EL.date_picker[1].replace(
+                    EL.replacement_text,
+                    check_out_date
+                )
+            )
         )
 
-        while int(show_travellers_span.text) != count:
-            if int(show_travellers_span.text) > count:
+    def _accomodation_counter(
+        self,
+        increment_button,
+        decrement_button,
+        value_span,
+        count
+    ):
+
+        while int(value_span.text) != count:
+            if int(value_span.text) > count:
                 decrement_button.click()
             else:
                 increment_button.click()
 
-    def _click_search(self):
-        search_button = self.find_element(
-            By.CSS_SELECTOR,
-            'button[type="submit"]'
-        )
-        search_button.click()
-
-    def select_accomodations(
+    def _select_accomodations(
         self,
         number_of_adult_travellers=2,
         number_of_rooms=1
     ):
         # Must have at least one traveller and one room
-        if number_of_rooms == 0:
+        if number_of_rooms < 1:
             number_of_rooms = 1
 
-        if number_of_adult_travellers == 0:
+        if number_of_adult_travellers < 1:
             number_of_adult_travellers = 1
 
-        travel_accomodation_element = self.find_element(
-            By.CSS_SELECTOR,
-            'button[data-testid="occupancy-config"]'
+        self.element_finder.search_and_click_element(
+            EL.accomodation_selector_element
         )
-        travel_accomodation_element.click()
 
-        adult_selection_element = self.find_element(
-            By.XPATH,
-            '//div[contains(@class, "b2b5147b20")]//input[@id="group_adults"]/following-sibling::div[contains(@class, "e98c626f34")]'
+        traveller_increment_button = self.element_finder.search_element(
+            (
+                EL.increment_counter_button[0],
+                EL.increment_counter_button[1].replace(
+                    EL.replacement_text,
+                    EL.traveller_counter_id
+                )
+            )
+        )
+        traveller_decrement_button = self.element_finder.search_element(
+            (
+                EL.decrement_counter_button[0],
+                EL.decrement_counter_button[1].replace(
+                    EL.replacement_text,
+                    EL.traveller_counter_id
+                )
+            )
+        )
+        traveller_number_span = self.element_finder.search_element(
+            (
+                EL.counter_value_span[0],
+                EL.counter_value_span[1].replace(
+                    EL.replacement_text,
+                    EL.traveller_counter_id
+                )
+            )
         )
         self._accomodation_counter(
-            adult_selection_element, number_of_adult_travellers
+            traveller_increment_button,
+            traveller_decrement_button,
+            traveller_number_span,
+            number_of_adult_travellers
         )
 
-        room_selection_element = self.find_element(
-            By.XPATH,
-            '//div[contains(@class, "b2b5147b20")]//input[@id="no_rooms"]/following-sibling::div[contains(@class, "e98c626f34")]'
+        room_increment_button = self.element_finder.search_element(
+            (
+                EL.increment_counter_button[0],
+                EL.increment_counter_button[1].replace(
+                    EL.replacement_text,
+                    EL.room_counter_id
+                )
+            )
+        )
+        room_decrement_button = self.element_finder.search_element(
+            (
+                EL.decrement_counter_button[0],
+                EL.decrement_counter_button[1].replace(
+                    EL.replacement_text,
+                    EL.room_counter_id
+                )
+            )
+        )
+        room_number_span = self.element_finder.search_element(
+            (
+                EL.counter_value_span[0],
+                EL.counter_value_span[1].replace(
+                    EL.replacement_text,
+                    EL.room_counter_id
+                )
+            )
         )
         self._accomodation_counter(
-            room_selection_element, number_of_rooms
+            room_increment_button,
+            room_decrement_button,
+            room_number_span,
+            number_of_rooms
         )
 
-        self._click_search()
-
-    def sort_results_by(self, sort_by):
-        sort_selection_element = self.find_element(
-            By.CSS_SELECTOR,
-            'button[data-testid="sorters-dropdown-trigger"]'
+        self.element_finder.search_and_click_element(
+            EL.search_button
         )
-        sort_selection_element.click()
 
+    def _sort_results_by(self, sort_by):
+        if sort_by == "":
+            return
+        self.element_finder.search_and_click_element(
+            EL.sort_option_menu_button
+        )
         sort_choice_button = WebDriverWait(self, 10).until(
             EC.presence_of_element_located((
-                By.CSS_SELECTOR,
-                f"button[data-id='{sort_by}']"
+                EL.sort_option_item_button[0],
+                EL.sort_option_item_button[1].replace(
+                    EL.replacement_text,
+                    sort_by
+                )
             ))
         )
         sort_choice_button.click()
 
-    def filter_by_hotel_star(self, star_values):
+    def _filter_by_hotel_star(self, star_values):
         for star_value in star_values:
-            if star_value == 1:
+            if star_value == '1':
                 continue
-            star_filtration_checkbox = self.find_element(
-                By.XPATH,
-                f"//input[contains(@aria-label, '{star_value} stars')]"
+            self.element_finder.search_and_click_element(
+                (
+                    EL.star_filter_checkbox[0],
+                    EL.star_filter_checkbox[1].replace(
+                        EL.replacement_text,
+                        star_value
+                    )
+                )
             )
-            star_filtration_checkbox.click()
 
-    def get_bookings(self):
+    def _extract_results(self):
         self.refresh()
-        hotel_boxes = self.find_elements(
-            By.CSS_SELECTOR,
-            'div[data-testid="property-card"]'
+        hotel_boxes = self.element_finder.search_elements(
+            EL.hotel_deal_list_div
         )
 
         top_hotel_collection = []
 
         for hotel_box in hotel_boxes:
             hotel_name = hotel_box.find_element(
-                By.CSS_SELECTOR,
-                'div[data-testid="title"]'
+                EL.hotel_name_div[0],
+                EL.hotel_name_div[1]
             ).get_attribute('innerHTML').strip()
 
             hotel_price = hotel_box.find_element(
-                By.CSS_SELECTOR,
-                'span[data-testid="price-and-discounted-price"]'
+                EL.hotel_price_span[0],
+                EL.hotel_price_span[1]
             ).get_attribute('innerHTML').strip()
             hotel_price = hotel_price.replace("&nbsp;", " ")
 
             hotel_rating = hotel_box.find_element(
-                By.XPATH,
-                '//div[contains(@aria-label, "Scored")]'
+                EL.hotel_rating_div[0],
+                EL.hotel_rating_div[1]
             ).get_attribute('innerHTML').strip()
 
             top_hotel_collection.append(
                 [hotel_name, hotel_price, hotel_rating]
             )
-        table = PrettyTable(
-            field_names=["Hotel Name", "Hotel Price", "Hotel Score"]
-        )
-        table.add_rows(top_hotel_collection)
-        print(table)
+
+        return top_hotel_collection
+
+    def fetch_hotel_deals(
+        self,
+        visiting_city: str,
+        check_in_date: str,
+        check_out_date: str,
+        number_of_travellers: int,
+        number_of_rooms: int,
+        sort_by: str,
+        star_values: list[str]
+    ) -> list:
+        self._search_city(visiting_city)
+        self._select_dates(check_in_date, check_out_date)
+        self._select_accomodations(number_of_travellers, number_of_rooms)
+        self._sort_results_by(sort_by)
+        self._filter_by_hotel_star(star_values)
+        return self._extract_results()
