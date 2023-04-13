@@ -1,0 +1,104 @@
+{
+  "testInputs": [
+    {
+      "testId": "0x0001",
+      "visitingCity": "Bangalore",
+      "checkInDate": "2023-04-13",
+      "checkOutDate": "2023-04-14",
+      "numberOfTravellers": 1,
+      "numberOfRooms": 1,
+      "sortBy": 1,
+      "hotelStars": ["5"]
+    },
+    {
+      "testId": "0x0002",
+      "visitingCity": "Bangalore",
+      "checkInDate": "2023-04-20",
+      "checkOutDate": "2023-04-25",
+      "numberOfTravellers": 3,
+      "numberOfRooms": 2,
+      "sortBy": 4,
+      "hotelStars": ["3", "5"]
+    },
+    {
+      "testId": "0x0003",
+      "visitingCity": "Bangalore",
+      "checkInDate": "2023-04-13",
+      "checkOutDate": "2023-04-11",
+      "numberOfTravellers": 5,
+      "numberOfRooms": 6,
+      "sortBy": 9,
+      "hotelStars": []
+    },
+    {
+      "testId": "0x0004",
+      "visitingCity": "Bangalore",
+      "checkInDate": "2023-05-13",
+      "checkOutDate": "2023-06-14",
+      "numberOfTravellers": 4,
+      "numberOfRooms": 0,
+      "sortBy": 6,
+      "hotelStars": ["5", "2"]
+    },
+    {
+      "testId": "0x0005",
+      "visitingCity": "Bangalore",
+      "checkInDate": "2023-04-13",
+      "checkOutDate": "2023-05-31",
+      "numberOfTravellers": 2,
+      "numberOfRooms": 1,
+      "sortBy": "",
+      "hotelStars": ["1", "2"]
+    },
+    {
+      "testId": "0x0006",
+      "visitingCity": "New Delhi",
+      "checkInDate": "2023-04-13",
+      "checkOutDate": "2023-04-14",
+      "numberOfTravellers": 20,
+      "numberOfRooms": 7,
+      "sortBy": 1,
+      "hotelStars": ["5"]
+    },
+    {
+      "testId": "0x0007",
+      "visitingCity": "Mumbai",
+      "checkInDate": "2023-04-20",
+      "checkOutDate": "2023-04-25",
+      "numberOfTravellers": 3,
+      "numberOfRooms": 9,
+      "sortBy": 4,
+      "hotelStars": ["2", "5"]
+    },
+    {
+      "testId": "0x0008",
+      "visitingCity": "Hyderabad",
+      "checkInDate": "2023-04-13",
+      "checkOutDate": "2023-04-11",
+      "numberOfTravellers": 5,
+      "numberOfRooms": 6,
+      "sortBy": 9,
+      "hotelStars": []
+    },
+    {
+      "testId": "0x0009",
+      "visitingCity": "Pune",
+      "checkInDate": "2023-05-13",
+      "checkOutDate": "2023-06-14",
+      "numberOfTravellers": 4,
+      "numberOfRooms": 0,
+      "sortBy": 2,
+      "hotelStars": ["3", "4"]
+    },
+    {
+      "testId": "0x0010",
+      "visitingCity": "Noida",
+      "checkInDate": "2023-04-13",
+      "checkOutDate": "2023-05-31",
+      "numberOfTravellers": 2,
+      "numberOfRooms": 1,
+      "sortBy": "",
+      "hotelStars": ["1", "2"]
+    }
+  ]
+}

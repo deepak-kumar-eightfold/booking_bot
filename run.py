@@ -1,7 +1,8 @@
-import time
+from prettytable import PrettyTable
 
-from bookings.booking import Booking
-from bookings.constant import SortChoice
+from bookings import Booking
+from bookings import SortChoice
+
 
 sort_by_input_string = """
     Sorting choices:
@@ -28,22 +29,27 @@ filter_star_input_string = """
 
     Enter Hotel stars: """
 
+visiting_city = input("Enter the City you want to visit: ")
+check_in_date = input("Enter Check-in date(YYYY-MM-DD): ")
+check_out_date = input("Enter Check-out date(YYYY-MM-DD): ")
+number_of_adult_travellers = int(input("Enter number of travellers: "))
+number_of_rooms = int(input("Enter number of rooms required: "))
+sort_by = SortChoice[int(input(sort_by_input_string))]
+star_values = input(filter_star_input_string).split()
+
 with Booking() as bot:
-    bot.search_city(
-        visiting_city=input("Enter the City you want to visit: ").strip()
+    hotel_deals = bot.fetch_hotel_deals(
+        visiting_city,
+        check_in_date,
+        check_out_date,
+        number_of_adult_travellers,
+        number_of_rooms,
+        sort_by,
+        star_values
     )
-    bot.select_dates(
-        check_in_date=input("Enter Check-in date(YYYY-MM-DD): ").strip(),
-        check_out_date=input("Enter Check-out date(YYYY-MM-DD): ").strip()
+
+    table = PrettyTable(
+        field_names=["Hotel Name", "Hotel Price", "Hotel Score"]
     )
-    bot.select_accomodations(
-        number_of_adult_travellers=int(input("Enter number of travellers: ")),
-        number_of_rooms=int(input("Enter number of rooms required: "))
-    )
-    bot.sort_results_by(
-        sort_by=SortChoice[int(input(sort_by_input_string))]
-    )
-    bot.filter_by_hotel_star(
-        star_values=list(map(int, input(filter_star_input_string).split()))
-    )
-    bot.get_bookings()
+    table.add_rows(hotel_deals)
+    print(table)
