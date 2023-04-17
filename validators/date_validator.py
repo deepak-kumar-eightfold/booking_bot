@@ -20,14 +20,14 @@ class DateValidator:
 
         date = datetime.strptime(date, "%Y-%m-%d")
 
-        return date >= datetime.today().date()
+        return date >= datetime.today()
 
     def is_date_before_next_month_last_date(self, date: str) -> bool:
         """Checks if the date is less than or equal to the last date of next month counting from today's date (Not from the date itself). Returns False if date is after the next month's last date."""
 
         date = datetime.strptime(date, "%Y-%m-%d")
 
-        today = datetime.now().date()
+        today = datetime.now()
         next_month = today.replace(
             month=today.month + 2,
             day=1

@@ -1,10 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.webelement import WebElement
 
-import bookings.constant as const
+
 from .element_finder_and_processor import ElementFinderAndProcessor
 from .locators import ElementLocators as EL
+from .constant import SortChoice, BASE_URL
 
 
 class Booking(webdriver.Chrome):
@@ -20,12 +22,12 @@ class Booking(webdriver.Chrome):
         return super().__exit__(exc_type, exc, traceback)
 
     def _landing_page(self):
-        self.get(const.BASE_URL)
+        self.get(BASE_URL)
         self.element_finder.search_and_click_element(
             EL.close_sign_in_prompt_button
         )
 
-    def _search_city(self, visiting_city):
+    def _search_city(self, visiting_city: str) -> None:
         search_input_element = self.element_finder.search_element(
             EL.city_search_input_field
         )
@@ -47,13 +49,17 @@ class Booking(webdriver.Chrome):
                     )
                 )
             except:
-                print(f"{visiting_city} not found on booking.com")
+                print(f"City: {visiting_city} not found on booking.com")
             finally:
                 self.element_finder.click_element(
                     selection_list_item
                 )
 
-    def _select_dates(self, check_in_date, check_out_date):
+    def _select_dates(
+        self,
+        check_in_date: str,
+        check_out_date: str
+    ) -> None:
 
         self.element_finder.search_and_click_element(
             (
@@ -76,11 +82,11 @@ class Booking(webdriver.Chrome):
 
     def _accomodation_counter(
         self,
-        increment_button,
-        decrement_button,
-        value_span,
-        count
-    ):
+        increment_button: WebElement,
+        decrement_button: WebElement,
+        value_span: WebElement,
+        count: int
+    ) -> None:
 
         while int(value_span.text) != count:
             if int(value_span.text) > count:
@@ -90,9 +96,9 @@ class Booking(webdriver.Chrome):
 
     def _select_accomodations(
         self,
-        number_of_adult_travellers=2,
-        number_of_rooms=1
-    ):
+        number_of_adult_travellers: int = 2,
+        number_of_rooms: int = 1
+    ) -> None:
         # Must have at least one traveller and one room
         if number_of_rooms < 1:
             number_of_rooms = 1
@@ -176,7 +182,7 @@ class Booking(webdriver.Chrome):
             EL.search_button
         )
 
-    def _sort_results_by(self, sort_by):
+    def _sort_results_by(self, sort_by: str) -> None:
         if sort_by == "":
             return
         self.element_finder.search_and_click_element(
@@ -193,7 +199,7 @@ class Booking(webdriver.Chrome):
         )
         sort_choice_button.click()
 
-    def _filter_by_hotel_star(self, star_values):
+    def _filter_by_hotel_star(self, star_values: list[str]) -> None:
         for star_value in star_values:
             if star_value == '1':
                 continue
@@ -207,7 +213,7 @@ class Booking(webdriver.Chrome):
                 )
             )
 
-    def _extract_results(self):
+    def _extract_results(self) -> list[list[str]]:
         self.refresh()
         hotel_boxes = self.element_finder.search_elements(
             EL.hotel_deal_list_div
@@ -238,19 +244,14 @@ class Booking(webdriver.Chrome):
 
         return top_hotel_collection
 
-    def fetch_hotel_deals(
-        self,
-        visiting_city: str,
-        check_in_date: str,
-        check_out_date: str,
-        number_of_travellers: int,
-        number_of_rooms: int,
-        sort_by: str,
-        star_values: list[str]
-    ) -> list:
-        self._search_city(visiting_city)
-        self._select_dates(check_in_date, check_out_date)
-        self._select_accomodations(number_of_travellers, number_of_rooms)
-        self._sort_results_by(sort_by)
-        self._filter_by_hotel_star(star_values)
+    def fetch_hotel_deals(self, test: dict) -> list[list[str]]:
+        self._search_city(test["visitingCity"])
+        self._select_dates(
+            test["checkInDate"],
+            test["checkOutDate"]
+        )
+        self._select_accomodations(
+            test["numberOfTravellers"], test["numberOfRooms"])
+        self._sort_results_by(SortChoice[test["sortBy"]])
+        self._filter_by_hotel_star(test["hotelStars"])
         return self._extract_results()
